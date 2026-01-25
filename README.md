@@ -71,7 +71,49 @@ end)
 Window:Notify("title", "Desc")
 ```
 
-# CREDITS
+# FULL USAGE
+```lua
+local AstralZ = require(game:GetService("ReplicatedStorage"):WaitForChild("AstralZ"))
+
+--// Setup Configuration
+local Config = {
+    Title = "Astral Z Public",
+    KeySystem = true,
+    KeyLink = "https://discord.gg/astralz",
+    Keys = loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_KEY_DATA"))()
+}
+
+--// Initialize
+local Window = AstralZ.new(Config)
+
+--// Tabs
+local Main = Window:AddTab("Combat")
+local Visuals = Window:AddTab("Visuals")
+local Misc = Window:AddTab("Settings")
+
+Main:AddToggle("Kill Aura", function(val)
+    print("Kill Aura is now: ", val)
+end)
+
+Main:AddSlider("Walkspeed", 16, 200, function(val)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = val
+end)
+
+Visuals:AddDropdown("ESP Mode", {"Box", "Tracer", "Skeleton"}, function(selected)
+    Window:Notify("ESP", "Mode set to: " .. selected)
+end)
+
+Misc:AddInput("Teleport To Player", function(txt)
+    Window:Notify("TP", "Searching for " .. txt)
+end)
+
+local Credits = Window:AddTab("Credits")
+Credits:AddButton("Copy Owner Discord", function()
+    setclipboard("discord.gg/astralz")
+end)
+```
+
+### CREDITS
 
 - **WAZADERMOKA** - DESIGNER
 - **LEGITXWX** - OWNER
