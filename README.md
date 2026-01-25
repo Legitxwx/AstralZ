@@ -1,7 +1,7 @@
 # ASTRAL Z
 
-**DESIGN** - The Design Will Improve Soon Yet!
-**ANIMATIONS** Animations Are Very Important On A UI So We Added.
+- **DESIGN** - The Design Will Improve Soon Yet!
+- **ANIMATIONS** Animations Are Very Important On A UI So We Added.
 
 # INSTALLATION LOADSTRING
 ```lua
