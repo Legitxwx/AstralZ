@@ -21,6 +21,7 @@ local Config = {
 ```
 
 # IMPORTANT
+Put this below the key logic
 ```lua
 local Window = AstralZ.new(Config)
 ```
