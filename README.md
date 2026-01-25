@@ -4,19 +4,19 @@
 **ANIMATIONS** Animations Are Very Important On A UI So We Added.
 
 # INSTALLATION LOADSTRING
-'''lua
+```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Legitxwx/AstralZ/refs/heads/main/Supra.lua"))()
-'''
+```
 
 # Key System Logic
-'''lua
+```lua
 local Config = {
     Title = "Astral Z Public",
     KeySystem = true,
     KeyLink = "https://discord.gg/astralz",
     Keys = loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_KEY_DATA"))()
 }
-'''
+```
 
 # IMPORTANT
 '''lua
