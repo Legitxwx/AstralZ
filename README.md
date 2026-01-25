@@ -1,6 +1,6 @@
 # ASTRAL Z
 
-#### MORE SOON
+# MORE SOON
 
 - **DESIGN** - The Design Will Improve Soon Yet!
 - **ANIMATIONS** - Animations Are Very Important On A UI So We Added.
