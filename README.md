@@ -7,7 +7,7 @@
 
 # INSTALLATION LOADSTRING
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Legitxwx/AstralZ/refs/heads/main/Supra.lua"))()
+local AstralZ = loadstring(game:HttpGet("https://raw.githubusercontent.com/Legitxwx/AstralZ/refs/heads/main/Supra.lua"))()
 ```
 
 # Key System Logic
@@ -73,7 +73,7 @@ Window:Notify("title", "Desc")
 
 # FULL USAGE
 ```lua
-local AstralZ = require(game:GetService("ReplicatedStorage"):WaitForChild("AstralZ"))
+local AstralZ = loadstring(game:HttpGet("https://raw.githubusercontent.com/Legitxwx/AstralZ/refs/heads/main/Supra.lua"))()
 
 --// Setup Configuration
 local Config = {
