@@ -1,120 +1,151 @@
-local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
 
-local AstralZ = {}
-AstralZ.__index = AstralZ
+local Astral = { Tabs = {} }
 
---// Animation Core
-local function Ani(obj, goal, time)
-    TweenService:Create(obj, TweenInfo.new(time or 0.3, Enum.EasingStyle.Quart), goal):Play()
+-- [[ CLEAN UTILS ]]
+local function Ani(obj, time, goal)
+    TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quint), goal):Play()
 end
 
---// Draggable Logic
-local function MakeDraggable(frame, parent)
-    local dragging, dragInput, dragStart, startPos
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true; dragStart = input.Position; startPos = parent.Position
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            parent.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-    end)
-end
-
-function AstralZ.new(cfg)
-    local self = setmetatable({}, AstralZ)
-    self.Gui = Instance.new("ScreenGui", CoreGui)
-    
-    if cfg.KeySystem then
-        self:BuildKeySystem(cfg)
-    else
-        self:BuildMain(cfg.Title)
+-- [[ NOTIFICATION SYSTEM ]]
+function Astral:Notify(title, text, duration)
+    local Holder = game:GetService("CoreGui"):FindFirstChild("Astral_Notifs") or Instance.new("Frame", game:GetService("CoreGui"))
+    if Holder.Name ~= "Astral_Notifs" then
+        Holder.Name = "Astral_Notifs"; Holder.Size = UDim2.new(0, 300, 1, 0); Holder.Position = UDim2.new(1, -310, 0, 20); Holder.BackgroundTransparency = 1
+        local L = Instance.new("UIListLayout", Holder); L.VerticalAlignment = "Bottom"; L.Padding = UDim.new(0, 8)
     end
-    return self
-end
 
-function AstralZ:Notify(title, msg)
-    local n = Instance.new("Frame", self.Gui)
-    n.Size = UDim2.new(0, 250, 0, 60); n.Position = UDim2.new(1, 10, 1, -70)
-    n.BackgroundColor3 = Color3.fromRGB(25, 25, 30); Instance.new("UICorner", n)
-    local t = Instance.new("TextLabel", n); t.Size = UDim2.new(1,0,0.4,0); t.Text = " "..title; t.TextColor3 = Color3.fromRGB(0, 255, 150); t.BackgroundTransparency = 1; t.Font = "GothamBold"
-    local d = Instance.new("TextLabel", n); d.Size = UDim2.new(1,0,0.6,0); d.Position = UDim2.new(0,0,0.4,0); d.Text = " "..msg; d.TextColor3 = Color3.fromRGB(200,200,200); d.BackgroundTransparency = 1; d.Font = "Gotham"
-    Ani(n, {Position = UDim2.new(1, -260, 1, -70)})
-    task.delay(3, function() Ani(n, {Position = UDim2.new(1, 10, 1, -70)}); task.wait(0.4); n:Destroy() end)
-end
+    local N = Instance.new("Frame", Holder)
+    N.Size = UDim2.new(1, 0, 0, 65); N.BackgroundColor3 = Color3.fromRGB(15, 15, 22); N.ClipsDescendants = true
+    Instance.new("UICorner", N).CornerRadius = UDim.new(0, 8)
+    local S = Instance.new("UIStroke", N); S.Color = Color3.fromRGB(138, 43, 226); S.Thickness = 1.5
 
-function AstralZ:BuildKeySystem(cfg)
-    local f = Instance.new("Frame", self.Gui); f.Size = UDim2.new(0,300,0,200); f.Position = UDim2.new(0.5,-150,0.5,-100); f.BackgroundColor3 = Color3.fromRGB(15,15,18); Instance.new("UICorner", f)
-    local i = Instance.new("TextBox", f); i.Size = UDim2.new(0.8,0,0,35); i.Position = UDim2.new(0.1,0,0.4,0); i.PlaceholderText = "Key..."; i.BackgroundColor3 = Color3.fromRGB(30,30,35); i.TextColor3 = Color3.fromRGB(255,255,255); Instance.new("UICorner", i)
-    local b = Instance.new("TextButton", f); b.Size = UDim2.new(0.8,0,0,35); b.Position = UDim2.new(0.1,0,0.65,0); b.Text = "Verify"; b.BackgroundColor3 = Color3.fromRGB(0,150,255); b.TextColor3 = Color3.fromRGB(255,255,255); Instance.new("UICorner", b)
-    b.MouseButton1Click:Connect(function()
-        if cfg.Keys[i.Text] then f:Destroy(); self:BuildMain(cfg.Title.." | "..cfg.Keys[i.Text]); self:Notify("Access", "Verified!") end
-    end)
-end
-
-function AstralZ:BuildMain(title)
-    self.Main = Instance.new("Frame", self.Gui); self.Main.Size = UDim2.new(0,500,0,350); self.Main.Position = UDim2.new(0.5,-250,0.5,-175); self.Main.BackgroundColor3 = Color3.fromRGB(18,18,22); Instance.new("UICorner", self.Main)
-    local s = Instance.new("Frame", self.Main); s.Size = UDim2.new(0,130,1,0); s.BackgroundColor3 = Color3.fromRGB(25,25,30); Instance.new("UICorner", s)
-    MakeDraggable(s, self.Main)
-    self.TabHold = Instance.new("ScrollingFrame", s); self.TabHold.Size = UDim2.new(1,0,1,-50); self.TabHold.Position = UDim2.new(0,0,0,40); self.TabHold.BackgroundTransparency = 1; Instance.new("UIListLayout", self.TabHold)
-    self.PageHold = Instance.new("Frame", self.Main); self.PageHold.Size = UDim2.new(1,-140,1,-20); self.PageHold.Position = UDim2.new(0,135,0,10); self.PageHold.BackgroundTransparency = 1
-end
-
-function AstralZ:AddTab(title)
-    local b = Instance.new("TextButton", self.TabHold); b.Size = UDim2.new(1,0,0,35); b.BackgroundTransparency = 1; b.Text = title; b.TextColor3 = Color3.fromRGB(150,150,150); b.Font = "GothamBold"
-    local p = Instance.new("ScrollingFrame", self.PageHold); p.Size = UDim2.new(1,0,1,0); p.Visible = false; p.BackgroundTransparency = 1; p.ScrollBarThickness = 0; Instance.new("UIListLayout", p).Padding = UDim.new(0,8)
-    b.MouseButton1Click:Connect(function()
-        for _,v in pairs(self.PageHold:GetChildren()) do v.Visible = false end
-        for _,v in pairs(self.TabHold:GetChildren()) do if v:IsA("TextButton") then v.TextColor3 = Color3.fromRGB(150,150,150) end end
-        p.Visible = true; b.TextColor3 = Color3.fromRGB(0,255,150)
-    end)
-    if #self.TabHold:GetChildren() == 1 then p.Visible = true; b.TextColor3 = Color3.fromRGB(0,255,150) end
+    local T = Instance.new("TextLabel", N)
+    T.Text = title; T.Size = UDim2.new(1, -10, 0, 25); T.Position = UDim2.new(0, 12, 0, 5); T.TextColor3 = Color3.fromRGB(138, 43, 226); T.Font = "GothamBold"; T.BackgroundTransparency = 1; T.TextXAlignment = "Left"
     
-    local tm = {}
-    function tm:AddToggle(text, callback)
-        local state = false
-        local t = Instance.new("TextButton", p); t.Size = UDim2.new(1,-5,0,35); t.BackgroundColor3 = Color3.fromRGB(30,30,35); t.Text = "  "..text; t.TextColor3 = Color3.fromRGB(200,200,200); t.TextXAlignment = "Left"; Instance.new("UICorner", t)
-        local box = Instance.new("Frame", t); box.Size = UDim2.new(0,30,0,15); box.Position = UDim2.new(1,-40,0.5,-7); box.BackgroundColor3 = Color3.fromRGB(50,50,50); Instance.new("UICorner", box, {CornerRadius = UDim.new(1,0)})
-        t.MouseButton1Click:Connect(function() state = not state; callback(state); Ani(box, {BackgroundColor3 = state and Color3.fromRGB(0,255,150) or Color3.fromRGB(50,50,50)}) end)
+    local D = Instance.new("TextLabel", N)
+    D.Text = text; D.Size = UDim2.new(1, -24, 0, 30); D.Position = UDim2.new(0, 12, 0, 28); D.TextColor3 = Color3.fromRGB(200, 200, 200); D.Font = "Gotham"; D.TextWrapped = true; D.BackgroundTransparency = 1; D.TextXAlignment = "Left"; D.TextSize = 12
+
+    task.delay(duration or 4, function()
+        Ani(N, 0.5, {Size = UDim2.new(1, 0, 0, 0), BackgroundTransparency = 1})
+        task.wait(0.5); N:Destroy()
+    end)
+end
+
+function Astral:CreateWindow(cfg)
+    local Main = Instance.new("ScreenGui", game:GetService("CoreGui"))
+    
+    -- TOGGLE BUTTON
+    local Toggle = Instance.new("ImageButton", Main)
+    Toggle.Size = UDim2.new(0, 45, 0, 45); Toggle.Position = UDim2.new(0, 20, 0.5, 0); Toggle.BackgroundColor3 = Color3.fromRGB(12, 12, 18); Toggle.Image = "rbxassetid://6031094678"; Toggle.ImageColor3 = Color3.fromRGB(138, 43, 226)
+    Instance.new("UICorner", Toggle).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", Toggle).Color = Color3.fromRGB(138, 43, 226)
+
+    -- MAIN FRAME
+    local Frame = Instance.new("Frame", Main)
+    Frame.Size = UDim2.new(0, 600, 0, 400); Frame.Position = UDim2.new(0.5, -300, 0.5, -200); Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 15); Frame.ClipsDescendants = true
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
+    Instance.new("UIStroke", Frame).Color = Color3.fromRGB(138, 43, 226)
+
+    -- TOPBAR
+    local TopBar = Instance.new("Frame", Frame)
+    TopBar.Size = UDim2.new(1, 0, 0, 45); TopBar.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
+    
+    local Title = Instance.new("TextLabel", TopBar)
+    Title.Text = "  " .. cfg.Title .. " <font color='#8A2BE2'>" .. cfg.Subtitle .. "</font>"; Title.RichText = true; Title.Size = UDim2.new(0.5, 0, 1, 0); Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = "GothamBold"; Title.TextXAlignment = "Left"; Title.BackgroundTransparency = 1
+
+    local Close = Instance.new("TextButton", TopBar)
+    Close.Text = "✕"; Close.Size = UDim2.new(0, 45, 1, 0); Close.Position = UDim2.new(1, -45, 0, 0); Close.TextColor3 = Color3.fromRGB(220, 60, 60); Close.BackgroundTransparency = 1; Close.TextSize = 18
+
+    local Min = Instance.new("TextButton", TopBar)
+    Min.Text = "—"; Min.Size = UDim2.new(0, 45, 1, 0); Min.Position = UDim2.new(1, -90, 0, 0); Min.TextColor3 = Color3.fromRGB(200, 200, 200); Min.BackgroundTransparency = 1; Min.TextSize = 18
+
+    -- SEARCH BAR
+    local SearchBox = Instance.new("TextBox", Frame)
+    SearchBox.Size = UDim2.new(1, -180, 0, 30); SearchBox.Position = UDim2.new(0, 170, 0, 55); SearchBox.BackgroundColor3 = Color3.fromRGB(18, 18, 26); SearchBox.PlaceholderText = "Search scripts..."; SearchBox.Text = ""; SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255); SearchBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100); SearchBox.Font = "Gotham"
+    Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
+
+    -- LOGIC: DRAG & TOGGLE
+    local function makeDrag(o, target)
+        local d, s, sp; o.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then d = true s = i.Position sp = target.Position end end)
+        UserInputService.InputChanged:Connect(function(i) if d and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then local delta = i.Position - s target.Position = UDim2.new(sp.X.Scale, sp.X.Offset + delta.X, sp.Y.Scale, sp.Y.Offset + delta.Y) end end)
+        UserInputService.InputEnded:Connect(function(i) d = false end)
     end
-    function tm:AddSlider(text, min, max, callback)
-        local s = Instance.new("Frame", p); s.Size = UDim2.new(1,-5,0,45); s.BackgroundColor3 = Color3.fromRGB(30,30,35); Instance.new("UICorner", s)
-        local l = Instance.new("TextLabel", s); l.Size = UDim2.new(1,0,0,20); l.Text = "  "..text; l.BackgroundTransparency = 1; l.TextColor3 = Color3.fromRGB(180,180,180); l.TextXAlignment = "Left"
-        local b = Instance.new("TextButton", s); b.Size = UDim2.new(1,-20,0,4); b.Position = UDim2.new(0,10,0,30); b.BackgroundColor3 = Color3.fromRGB(50,50,55); b.Text = ""
-        local f = Instance.new("Frame", b); f.Size = UDim2.new(0,0,1,0); f.BackgroundColor3 = Color3.fromRGB(0,150,255)
-        b.MouseButton1Down:Connect(function()
-            local move = UserInputService.InputChanged:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then
-                    local per = math.clamp((UserInputService:GetMouseLocation().X - b.AbsolutePosition.X)/b.AbsoluteSize.X, 0, 1)
-                    f.Size = UDim2.new(per,0,1,0); callback(math.floor(min + (max-min)*per))
+    makeDrag(TopBar, Frame); makeDrag(Toggle, Toggle)
+    
+    Close.MouseButton1Click:Connect(function() Main:Destroy() end)
+    Min.MouseButton1Click:Connect(function() Frame.Visible = false end)
+    Toggle.MouseButton1Click:Connect(function() Frame.Visible = not Frame.Visible end)
+
+    local TabScroll = Instance.new("ScrollingFrame", Frame)
+    TabScroll.Size = UDim2.new(0, 150, 1, -60); TabScroll.Position = UDim2.new(0, 10, 0, 55); TabScroll.BackgroundTransparency = 1; TabScroll.ScrollBarThickness = 0
+    Instance.new("UIListLayout", TabScroll).Padding = UDim.new(0, 5)
+
+    local Content = Instance.new("Frame", Frame)
+    Content.Size = UDim2.new(1, -170, 1, -100); Content.Position = UDim2.new(0, 160, 0, 95); Content.BackgroundTransparency = 1
+
+    local Window = {}
+    function Window:CreateTab(tcfg)
+        local TabBtn = Instance.new("TextButton", TabScroll)
+        TabBtn.Size = UDim2.new(1, 0, 0, 35); TabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 28); TabBtn.Text = tcfg.Title; TabBtn.TextColor3 = Color3.fromRGB(150, 150, 150); TabBtn.Font = "GothamMedium"
+        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
+
+        local Page = Instance.new("ScrollingFrame", Content)
+        Page.Size = UDim2.new(1, 0, 1, 0); Page.Visible = false; Page.BackgroundTransparency = 1; Page.ScrollBarThickness = 0; Page.AutomaticCanvasSize = "Y"
+        Instance.new("UIGridLayout", Page).CellSize = UDim2.new(0, 205, 0, 140)
+
+        TabBtn.MouseButton1Click:Connect(function()
+            for _, v in pairs(Content:GetChildren()) do v.Visible = false end
+            Page.Visible = true; Page.Position = UDim2.new(0, 15, 0, 0); Ani(Page, 0.4, {Position = UDim2.new(0, 0, 0, 0)})
+        end)
+
+        -- SEARCH LOGIC
+        SearchBox.GetPropertyChangedSignal(SearchBox, "Text"):Connect(function()
+            local input = SearchBox.Text:lower()
+            for _, card in pairs(Page:GetChildren()) do
+                if card:IsA("Frame") then
+                    card.Visible = card.Name:lower():find(input) and true or false
+                end
+            end
+        end)
+
+        local Tab = {}
+        function Tab:CreateCard(ccfg)
+            local Card = Instance.new("Frame", Page)
+            Card.Name = ccfg.Title; Card.BackgroundColor3 = Color3.fromRGB(18, 18, 26); Card.BorderSizePixel = 0
+            Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 8)
+            
+            local Thumb = Instance.new("ImageLabel", Card)
+            Thumb.Size = UDim2.new(1, 0, 0, 80); Thumb.Image = ccfg.thumbnail; Instance.new("UICorner", Thumb).CornerRadius = UDim.new(0, 8)
+
+            local T = Instance.new("TextLabel", Card)
+            T.Text = ccfg.Title; T.Size = UDim2.new(1, -10, 0, 20); T.Position = UDim2.new(0, 8, 0, 85); T.TextColor3 = Color3.fromRGB(255, 255, 255); T.Font = "GothamBold"; T.BackgroundTransparency = 1; T.TextXAlignment = "Left"
+
+            local Exec = Instance.new("TextButton", Card)
+            Exec.Size = UDim2.new(0, 75, 0, 26); Exec.Position = UDim2.new(1, -80, 1, -32); Exec.BackgroundColor3 = Color3.fromRGB(138, 43, 226); Exec.Text = "Execute"; Exec.TextColor3 = Color3.fromRGB(255, 255, 255); Exec.Font = "GothamBold"
+            Instance.new("UICorner", Exec).CornerRadius = UDim.new(0, 5)
+
+            Exec.MouseButton1Click:Connect(function()
+                if not ccfg.loadstring or ccfg.loadstring == "" then
+                    Astral:Notify("Error", "Script is empty or outdated.", 3)
+                else
+                    Astral:Notify("Executing", "Loading " .. ccfg.Title, 2)
+                    task.wait(0.5); loadstring(ccfg.loadstring)()
                 end
             end)
-            UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then move:Disconnect() end end)
-        end)
-    end
-    function tm:AddInput(text, callback)
-        local i = Instance.new("Frame", p); i.Size = UDim2.new(1,-5,0,40); i.BackgroundColor3 = Color3.fromRGB(30,30,35); Instance.new("UICorner", i)
-        local box = Instance.new("TextBox", i); box.Size = UDim2.new(1,-20,0,30); box.Position = UDim2.new(0,10,0,5); box.PlaceholderText = text; box.BackgroundTransparency = 1; box.TextColor3 = Color3.fromRGB(255,255,255)
-        box.FocusLost:Connect(function() callback(box.Text) end)
-    end
-    function tm:AddDropdown(text, list, callback)
-        local d = Instance.new("TextButton", p); d.Size = UDim2.new(1,-5,0,35); d.BackgroundColor3 = Color3.fromRGB(30,30,35); d.Text = "  "..text; d.TextColor3 = Color3.fromRGB(200,200,200); d.TextXAlignment = "Left"; Instance.new("UICorner", d)
-        local opened = false; local hold = Instance.new("Frame", p); hold.Size = UDim2.new(1,-5,0,0); hold.Visible = false; hold.BackgroundColor3 = Color3.fromRGB(25,25,30); Instance.new("UIListLayout", hold)
-        d.MouseButton1Click:Connect(function() opened = not opened; hold.Visible = opened; hold.Size = opened and UDim2.new(1,-5,0,#list*30) or UDim2.new(1,-5,0,0) end)
-        for _,v in pairs(list) do
-            local opt = Instance.new("TextButton", hold); opt.Size = UDim2.new(1,0,0,30); opt.Text = v; opt.BackgroundColor3 = Color3.fromRGB(35,35,40); opt.TextColor3 = Color3.fromRGB(150,150,150)
-            opt.MouseButton1Click:Connect(function() callback(v); d.Text = "  "..text..": "..v; opened = false; hold.Visible = false end)
+            return Card
         end
+        return Tab
     end
-    return tm
+    
+    if cfg.loading then
+        local L = Instance.new("Frame", Main); L.Size = UDim2.new(1,0,1,0); L.BackgroundColor3 = Color3.fromRGB(5,5,10); L.ZIndex = 100
+        local LT = Instance.new("TextLabel", L); LT.Text = "ASTRAL"; LT.TextColor3 = Color3.fromRGB(138, 43, 226); LT.Font = "GothamBold"; LT.TextSize = 40; LT.Size = UDim2.new(1,0,1,0); LT.BackgroundTransparency = 1
+        task.wait(1); Ani(L, 0.8, {BackgroundTransparency = 1}); Ani(LT, 0.8, {TextTransparency = 1}); task.wait(0.8); L:Destroy()
+    end
+
+    return Window
 end
 
-return AstralZ
+return Astral
