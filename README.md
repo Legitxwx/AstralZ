@@ -1,35 +1,43 @@
-**** # ASTRAL HUB SOURCE
-
-**** # INITIALIZATION
-```
+# Installation
+```lua
 local Astral = loadstring(game:HttpGet("https://raw.githubusercontent.com/Legitxwx/AstralZ/refs/heads/main/Supra.lua"))()
-```
-**** # WINDOW CONFIGURATION
-```
+
+# Window
 local Window = Astral:CreateWindow({
     Title = "ASTRAL HUB",
-    Subtitle = "UNIVERSAL",
-    Author = "Gemini",
-    Version = "5.0",
+    Subtitle = "PREMIUM",
+    Author = "Astral",
+    Version = "6.0",
     loading = true
 })
 ```
-**** # TAB SELECTION
-```
+# Tab
+```lua
 local Tab = Window:CreateTab({
-    Title = "Combat Scripts"
-})
-```
-**** # SCRIPT CARDS
-```
-local Card = Tab:CreateCard({
-    Title = "KillAura V2",
-    thumbnail = "rbxassetid://13511116127",
-    loadstring = "print('Executed Combat Script!')"
+    Title = "Tab",
+    locked = false
 })
 ```
 
-**** # NOTIFICATIONS
+# Game Card
+```lua
+local Card = Tab:CreateCard({
+    Title = "Game Title",
+    Description = "Game Description",
+    thumbnail = "rbxassetid://13511116127",
+    loadstring = "loadstring(game:HttpGet(""))()
+})
 ```
-Astral:Notify("System", "Welcome to Astral. Use the search bar to find scripts.", 5)
+# Executor Support
+```lua
+local ExecutorSupport = {
+    ["Delta"] = true,
+    ["Codex"] = true,
+    ["Arceus X"] = true
+}
+```
+
+# Notification
+```lua
+Astral:Notify("Welcome", "Astral UI v6.0 is ready for use!", 5)
 ```
